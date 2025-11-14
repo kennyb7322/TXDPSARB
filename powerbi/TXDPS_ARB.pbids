@@ -1,0 +1,17 @@
+{
+  "version": "0.1",
+  "connections": [
+    {
+      "details": {
+        "protocol": "sharepoint-list",
+        "address": {
+          "url": "https://[tenant].sharepoint.com/sites/ARB"
+        },
+        "authentication": null,
+        "query": null
+      },
+      "options": {},
+      "mode": "DirectQuery"
+    }
+  ]
+}

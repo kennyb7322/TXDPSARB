@@ -1,0 +1,308 @@
+{
+  "libraryName": "ARB Documents",
+  "description": "Document library for ARB submission supporting documents",
+  "template": 101,
+  "enableVersioning": true,
+  "majorVersionLimit": 10,
+  "enableMinorVersions": true,
+  "minorVersionLimit": 5,
+  "enableContentTypes": true,
+  "metadataFields": [
+    {
+      "name": "DocumentType",
+      "displayName": "Document Type",
+      "type": "Choice",
+      "required": true,
+      "choices": [
+        "Architecture Diagram",
+        "Technical Specification",
+        "Business Case",
+        "Budget Estimate",
+        "Risk Assessment",
+        "Security Analysis",
+        "Compliance Documentation",
+        "Project Plan",
+        "Test Plan",
+        "User Documentation",
+        "Other"
+      ],
+      "description": "Type of document being uploaded"
+    },
+    {
+      "name": "RelatedSubmissionID",
+      "displayName": "Related Submission ID",
+      "type": "Text",
+      "required": true,
+      "indexed": true,
+      "description": "ID of the related ARB submission"
+    },
+    {
+      "name": "Domain",
+      "displayName": "Domain",
+      "type": "Choice",
+      "required": true,
+      "allowMultipleValues": true,
+      "choices": [
+        "General Information",
+        "Project Details",
+        "Technical Architecture",
+        "Security & Compliance",
+        "Capacity Planning",
+        "Financial",
+        "Timeline",
+        "Business Value",
+        "Risk Management",
+        "Integration",
+        "Compliance",
+        "Data Management",
+        "Operations & Maintenance",
+        "Testing & Quality Assurance"
+      ],
+      "description": "Domain(s) this document addresses"
+    },
+    {
+      "name": "Tags",
+      "displayName": "Tags",
+      "type": "MMS",
+      "required": false,
+      "allowMultipleValues": true,
+      "termSetId": "ARB-Tags-TermSet",
+      "description": "Managed metadata tags for document classification",
+      "termSet": {
+        "name": "ARB Tags",
+        "terms": [
+          {
+            "name": "Technology",
+            "terms": [
+              "Cloud",
+              "On-Premises",
+              "Hybrid",
+              "Web",
+              "Mobile",
+              "Desktop"
+            ]
+          },
+          {
+            "name": "Priority",
+            "terms": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ]
+          },
+          {
+            "name": "Compliance",
+            "terms": [
+              "CJIS",
+              "HIPAA",
+              "PCI-DSS",
+              "NIST",
+              "State Policy"
+            ]
+          },
+          {
+            "name": "Status",
+            "terms": [
+              "Draft",
+              "In Review",
+              "Approved",
+              "Archived"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Confidentiality",
+      "displayName": "Confidentiality Level",
+      "type": "Choice",
+      "required": true,
+      "default": "Internal",
+      "choices": [
+        "Public",
+        "Internal",
+        "Confidential",
+        "Restricted"
+      ],
+      "description": "Document confidentiality classification"
+    },
+    {
+      "name": "ReviewStatus",
+      "displayName": "Review Status",
+      "type": "Choice",
+      "required": false,
+      "default": "Pending Review",
+      "choices": [
+        "Pending Review",
+        "Under Review",
+        "Approved",
+        "Needs Revision",
+        "Rejected"
+      ],
+      "description": "Current review status of the document"
+    },
+    {
+      "name": "Reviewer",
+      "displayName": "Reviewer",
+      "type": "User",
+      "required": false,
+      "description": "Person assigned to review this document"
+    },
+    {
+      "name": "ReviewDate",
+      "displayName": "Review Date",
+      "type": "DateTime",
+      "required": false,
+      "description": "Date the document was reviewed"
+    },
+    {
+      "name": "ExpirationDate",
+      "displayName": "Expiration Date",
+      "type": "DateTime",
+      "required": false,
+      "description": "Date when the document expires or needs renewal"
+    },
+    {
+      "name": "Author",
+      "displayName": "Document Author",
+      "type": "User",
+      "required": false,
+      "description": "Original author of the document"
+    },
+    {
+      "name": "Version",
+      "displayName": "Document Version",
+      "type": "Text",
+      "required": false,
+      "description": "Document version number (e.g., 1.0, 2.1)"
+    },
+    {
+      "name": "Keywords",
+      "displayName": "Keywords",
+      "type": "Text",
+      "required": false,
+      "allowMultipleValues": true,
+      "description": "Keywords for search and discovery"
+    }
+  ],
+  "contentTypes": [
+    {
+      "name": "ARB Architecture Document",
+      "parent": "Document",
+      "description": "Architecture diagrams and technical designs",
+      "group": "TXDPS ARB Content Types"
+    },
+    {
+      "name": "ARB Business Document",
+      "parent": "Document",
+      "description": "Business cases, justifications, and requirements",
+      "group": "TXDPS ARB Content Types"
+    },
+    {
+      "name": "ARB Compliance Document",
+      "parent": "Document",
+      "description": "Compliance and regulatory documentation",
+      "group": "TXDPS ARB Content Types"
+    }
+  ],
+  "views": [
+    {
+      "name": "All Documents",
+      "default": true,
+      "rowLimit": 30,
+      "fields": [
+        "DocIcon",
+        "LinkFilename",
+        "DocumentType",
+        "Domain",
+        "Modified",
+        "Editor"
+      ],
+      "query": ""
+    },
+    {
+      "name": "By Domain",
+      "default": false,
+      "rowLimit": 30,
+      "groupBy": "Domain",
+      "fields": [
+        "DocIcon",
+        "LinkFilename",
+        "DocumentType",
+        "ReviewStatus",
+        "Modified"
+      ],
+      "query": ""
+    },
+    {
+      "name": "Pending Review",
+      "default": false,
+      "rowLimit": 30,
+      "fields": [
+        "DocIcon",
+        "LinkFilename",
+        "DocumentType",
+        "Domain",
+        "Reviewer",
+        "Created"
+      ],
+      "query": "<Where><Eq><FieldRef Name='ReviewStatus'/><Value Type='Choice'>Pending Review</Value></Eq></Where>"
+    },
+    {
+      "name": "My Documents",
+      "default": false,
+      "rowLimit": 30,
+      "fields": [
+        "DocIcon",
+        "LinkFilename",
+        "DocumentType",
+        "ReviewStatus",
+        "Modified"
+      ],
+      "query": "<Where><Eq><FieldRef Name='Author'/><Value Type='Integer'><UserID/></Value></Eq></Where>"
+    }
+  ],
+  "permissions": {
+    "breakInheritance": true,
+    "roles": [
+      {
+        "name": "ARB Administrators",
+        "permission": "Full Control"
+      },
+      {
+        "name": "ARB Reviewers",
+        "permission": "Contribute"
+      },
+      {
+        "name": "All Employees",
+        "permission": "Read"
+      }
+    ]
+  },
+  "informationManagementPolicy": {
+    "enableAuditing": true,
+    "auditFlags": [
+      "View",
+      "Update",
+      "Delete"
+    ],
+    "enableRetention": true,
+    "retentionSchedule": [
+      {
+        "stage": 1,
+        "description": "Active documents",
+        "action": "None",
+        "period": "Years",
+        "periodCount": 3
+      },
+      {
+        "stage": 2,
+        "description": "Archive old documents",
+        "action": "MoveToRecyclerBin",
+        "period": "Years",
+        "periodCount": 7
+      }
+    ]
+  }
+}

@@ -1,0 +1,306 @@
+{
+  "listName": "ARB Submissions",
+  "description": "Architecture Review Board submission tracking list",
+  "template": 100,
+  "columns": [
+    {
+      "name": "Title",
+      "type": "Text",
+      "required": true,
+      "indexed": true,
+      "description": "Submission title or project name"
+    },
+    {
+      "name": "SubmissionID",
+      "type": "Text",
+      "required": true,
+      "indexed": true,
+      "unique": true,
+      "description": "Unique identifier for the submission"
+    },
+    {
+      "name": "SubmitterName",
+      "type": "Text",
+      "required": true,
+      "description": "Name of the person submitting the ARB request"
+    },
+    {
+      "name": "SubmitterEmail",
+      "type": "Text",
+      "required": true,
+      "description": "Email address of the submitter"
+    },
+    {
+      "name": "SubmissionDate",
+      "type": "DateTime",
+      "required": true,
+      "indexed": true,
+      "description": "Date the submission was created"
+    },
+    {
+      "name": "ProjectName",
+      "type": "Text",
+      "required": true,
+      "indexed": true,
+      "description": "Name of the project"
+    },
+    {
+      "name": "ProjectDescription",
+      "type": "Note",
+      "required": true,
+      "description": "Detailed description of the project"
+    },
+    {
+      "name": "ProjectType",
+      "type": "Choice",
+      "required": true,
+      "choices": [
+        "New Application",
+        "Enhancement",
+        "Integration",
+        "Infrastructure",
+        "Security"
+      ],
+      "description": "Type of project being submitted"
+    },
+    {
+      "name": "ApplicationPlatform",
+      "type": "Choice",
+      "required": false,
+      "choices": [
+        "Web Application",
+        "Mobile Application",
+        "Desktop Application",
+        "Cloud Service"
+      ],
+      "description": "Primary platform for the application"
+    },
+    {
+      "name": "SecurityRequirements",
+      "type": "Note",
+      "required": false,
+      "description": "Security requirements and considerations"
+    },
+    {
+      "name": "EstimatedUsers",
+      "type": "Number",
+      "required": true,
+      "description": "Estimated number of users"
+    },
+    {
+      "name": "BudgetRange",
+      "type": "Choice",
+      "required": true,
+      "choices": [
+        "Under $50,000",
+        "$50,000 - $100,000",
+        "$100,000 - $500,000",
+        "$500,000 - $1,000,000",
+        "Over $1,000,000"
+      ],
+      "description": "Estimated budget range"
+    },
+    {
+      "name": "TargetCompletionDate",
+      "type": "DateTime",
+      "required": true,
+      "description": "Target date for project completion"
+    },
+    {
+      "name": "BusinessJustification",
+      "type": "Note",
+      "required": true,
+      "description": "Business justification and expected benefits"
+    },
+    {
+      "name": "RiskAssessment",
+      "type": "Note",
+      "required": false,
+      "description": "Risk assessment and mitigation strategies"
+    },
+    {
+      "name": "Dependencies",
+      "type": "Note",
+      "required": false,
+      "description": "System dependencies and integration points"
+    },
+    {
+      "name": "ComplianceRequirements",
+      "type": "Note",
+      "required": false,
+      "description": "Compliance and regulatory requirements"
+    },
+    {
+      "name": "AdditionalComments",
+      "type": "Note",
+      "required": false,
+      "description": "Additional comments or information"
+    },
+    {
+      "name": "Status",
+      "type": "Choice",
+      "required": true,
+      "default": "Draft",
+      "indexed": true,
+      "choices": [
+        "Draft",
+        "Submitted",
+        "Under Review",
+        "Pending Information",
+        "Approved",
+        "Rejected",
+        "On Hold",
+        "Withdrawn"
+      ],
+      "description": "Current status of the submission"
+    },
+    {
+      "name": "AssignedReviewer",
+      "type": "User",
+      "required": false,
+      "description": "Primary reviewer assigned to this submission"
+    },
+    {
+      "name": "ReviewerComments",
+      "type": "Note",
+      "required": false,
+      "description": "Comments from the reviewer"
+    },
+    {
+      "name": "ApprovalDate",
+      "type": "DateTime",
+      "required": false,
+      "description": "Date the submission was approved"
+    },
+    {
+      "name": "Domain",
+      "type": "Choice",
+      "required": false,
+      "allowMultipleValues": true,
+      "choices": [
+        "General Information",
+        "Project Details",
+        "Technical Architecture",
+        "Security & Compliance",
+        "Capacity Planning",
+        "Financial",
+        "Timeline",
+        "Business Value",
+        "Risk Management",
+        "Integration",
+        "Compliance",
+        "Data Management",
+        "Operations & Maintenance",
+        "Testing & Quality Assurance"
+      ],
+      "description": "Domains addressed in this submission"
+    },
+    {
+      "name": "Priority",
+      "type": "Choice",
+      "required": false,
+      "default": "Medium",
+      "choices": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "description": "Priority level of the submission"
+    },
+    {
+      "name": "StrategicAlignment",
+      "type": "Number",
+      "required": false,
+      "min": 1,
+      "max": 5,
+      "description": "Strategic alignment score (1-5)"
+    },
+    {
+      "name": "AttachmentPath",
+      "type": "URL",
+      "required": false,
+      "description": "Link to supporting documents"
+    }
+  ],
+  "views": [
+    {
+      "name": "All Submissions",
+      "default": true,
+      "rowLimit": 30,
+      "fields": [
+        "Title",
+        "SubmitterName",
+        "ProjectType",
+        "Status",
+        "SubmissionDate",
+        "Priority"
+      ],
+      "query": ""
+    },
+    {
+      "name": "Pending Review",
+      "default": false,
+      "rowLimit": 30,
+      "fields": [
+        "Title",
+        "SubmitterName",
+        "ProjectType",
+        "SubmissionDate",
+        "AssignedReviewer"
+      ],
+      "query": "<Where><Eq><FieldRef Name='Status'/><Value Type='Choice'>Under Review</Value></Eq></Where>"
+    },
+    {
+      "name": "Approved",
+      "default": false,
+      "rowLimit": 30,
+      "fields": [
+        "Title",
+        "ProjectName",
+        "ProjectType",
+        "ApprovalDate",
+        "BudgetRange"
+      ],
+      "query": "<Where><Eq><FieldRef Name='Status'/><Value Type='Choice'>Approved</Value></Eq></Where>"
+    },
+    {
+      "name": "My Submissions",
+      "default": false,
+      "rowLimit": 30,
+      "fields": [
+        "Title",
+        "ProjectName",
+        "Status",
+        "SubmissionDate",
+        "AssignedReviewer"
+      ],
+      "query": "<Where><Eq><FieldRef Name='SubmitterEmail'/><Value Type='Text'>[Me]</Value></Eq></Where>"
+    }
+  ],
+  "contentTypes": [
+    {
+      "name": "ARB Submission",
+      "description": "Standard ARB submission content type",
+      "group": "TXDPS Content Types"
+    }
+  ],
+  "permissions": {
+    "breakInheritance": true,
+    "roles": [
+      {
+        "name": "ARB Administrators",
+        "permission": "Full Control"
+      },
+      {
+        "name": "ARB Reviewers",
+        "permission": "Contribute"
+      },
+      {
+        "name": "All Employees",
+        "permission": "Read",
+        "itemLevel": "Own"
+      }
+    ]
+  }
+}

@@ -1,0 +1,105 @@
+TXDPS Architecture Review Board (ARB) Submission Form
+Microsoft Forms Import Template
+
+Instructions:
+1. Copy this content into Microsoft Forms
+2. Each section below represents a question
+3. Use the question type indicators to set up proper form fields
+
+=== BEGIN FORM QUESTIONS ===
+
+Question 1: Submitter Name
+Type: Text (Short answer)
+Required: Yes
+
+Question 2: Submitter Email
+Type: Text (Short answer)
+Required: Yes
+Validation: Email format
+
+Question 3: Project Name
+Type: Text (Short answer)
+Required: Yes
+
+Question 4: Project Description
+Type: Text (Long answer)
+Required: Yes
+
+Question 5: Project Type
+Type: Choice (Dropdown)
+Required: Yes
+Options:
+- New Application
+- Enhancement
+- Integration
+- Infrastructure
+- Security
+
+Question 6: Application Platform
+Type: Choice (Dropdown)
+Required: No
+Options:
+- Web Application
+- Mobile Application
+- Desktop Application
+- Cloud Service
+Branching: Show only if Project Type = "New Application"
+
+Question 7: Security Requirements
+Type: Text (Long answer)
+Required: No
+Branching: Show only if Project Type = "Security"
+
+Question 8: Estimated Number of Users
+Type: Text (Short answer)
+Required: Yes
+
+Question 9: Budget Range
+Type: Choice (Dropdown)
+Required: Yes
+Options:
+- Under $50,000
+- $50,000 - $100,000
+- $100,000 - $500,000
+- $500,000 - $1,000,000
+- Over $1,000,000
+
+Question 10: Target Completion Date
+Type: Date
+Required: Yes
+
+Question 11: Business Justification
+Type: Text (Long answer)
+Required: Yes
+
+Question 12: Risk Assessment
+Type: Text (Long answer)
+Required: No
+
+Question 13: Dependencies
+Type: Text (Long answer)
+Required: No
+
+Question 14: Compliance Requirements
+Type: Text (Long answer)
+Required: No
+
+Question 15: Additional Comments
+Type: Text (Long answer)
+Required: No
+
+=== END FORM QUESTIONS ===
+
+Additional Settings:
+- Enable response receipts
+- Collect respondent names
+- Allow one response per person
+- Show progress bar
+- Customize theme with TXDPS colors
+
+Integration:
+After creating the form, set up Power Automate to:
+1. Capture form responses
+2. Write to SharePoint list "ARB Submissions"
+3. Send email notifications to ARB team
+4. Trigger approval workflow

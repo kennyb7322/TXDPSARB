@@ -1,0 +1,226 @@
+{
+  "name": "ARB Submission Intake Workflow",
+  "description": "Automated workflow for processing ARB submissions: SharePoint list creation, Excel export, approval routing, and email notifications",
+  "trigger": {
+    "type": "When an item is created",
+    "connection": "SharePoint",
+    "parameters": {
+      "siteAddress": "https://[tenant].sharepoint.com/sites/ARB",
+      "listName": "ARB Submissions"
+    }
+  },
+  "actions": [
+    {
+      "name": "Initialize Variables",
+      "type": "Initialize variable",
+      "actions": [
+        {
+          "name": "varSubmissionID",
+          "type": "String",
+          "value": "@{triggerOutputs()?['body/SubmissionID']}"
+        },
+        {
+          "name": "varProjectName",
+          "type": "String",
+          "value": "@{triggerOutputs()?['body/ProjectName']}"
+        },
+        {
+          "name": "varSubmitterEmail",
+          "type": "String",
+          "value": "@{triggerOutputs()?['body/SubmitterEmail']}"
+        },
+        {
+          "name": "varStatus",
+          "type": "String",
+          "value": "Submitted"
+        }
+      ]
+    },
+    {
+      "name": "Update Status to Submitted",
+      "type": "Update item",
+      "connection": "SharePoint",
+      "parameters": {
+        "siteAddress": "https://[tenant].sharepoint.com/sites/ARB",
+        "listName": "ARB Submissions",
+        "id": "@triggerOutputs()?['body/ID']",
+        "Status": "@{variables('varStatus')}"
+      }
+    },
+    {
+      "name": "Create Excel Export",
+      "type": "Create file",
+      "connection": "OneDrive for Business",
+      "parameters": {
+        "folderPath": "/ARB/Exports",
+        "fileName": "ARB_@{variables('varSubmissionID')}_@{utcNow('yyyyMMdd')}.xlsx",
+        "content": "@{outputs('Generate_Excel_Table')}"
+      }
+    },
+    {
+      "name": "Generate Excel Table",
+      "type": "Create HTML table",
+      "parameters": {
+        "from": [
+          {
+            "Field": "Submission ID",
+            "Value": "@{variables('varSubmissionID')}"
+          },
+          {
+            "Field": "Project Name",
+            "Value": "@{variables('varProjectName')}"
+          },
+          {
+            "Field": "Submitter",
+            "Value": "@{triggerOutputs()?['body/SubmitterName']}"
+          },
+          {
+            "Field": "Email",
+            "Value": "@{variables('varSubmitterEmail')}"
+          },
+          {
+            "Field": "Project Type",
+            "Value": "@{triggerOutputs()?['body/ProjectType']}"
+          },
+          {
+            "Field": "Budget Range",
+            "Value": "@{triggerOutputs()?['body/BudgetRange']}"
+          },
+          {
+            "Field": "Target Date",
+            "Value": "@{triggerOutputs()?['body/TargetCompletionDate']}"
+          },
+          {
+            "Field": "Description",
+            "Value": "@{triggerOutputs()?['body/ProjectDescription']}"
+          },
+          {
+            "Field": "Business Justification",
+            "Value": "@{triggerOutputs()?['body/BusinessJustification']}"
+          }
+        ],
+        "format": "HTML"
+      }
+    },
+    {
+      "name": "Send Confirmation Email to Submitter",
+      "type": "Send an email (V2)",
+      "connection": "Office365",
+      "parameters": {
+        "to": "@{variables('varSubmitterEmail')}",
+        "subject": "ARB Submission Received - @{variables('varSubmissionID')}",
+        "body": "<p>Dear @{triggerOutputs()?['body/SubmitterName']},</p><p>Your Architecture Review Board submission has been received and is now under review.</p><p><strong>Submission Details:</strong></p><ul><li>Submission ID: @{variables('varSubmissionID')}</li><li>Project Name: @{variables('varProjectName')}</li><li>Submission Date: @{utcNow('MM/dd/yyyy')}</li><li>Status: Submitted</li></ul><p>You will receive updates as your submission progresses through the review process.</p><p>Thank you,<br>TXDPS ARB Team</p>",
+        "importance": "Normal"
+      }
+    },
+    {
+      "name": "Notify ARB Team",
+      "type": "Send an email (V2)",
+      "connection": "Office365",
+      "parameters": {
+        "to": "arb-team@dps.texas.gov",
+        "subject": "New ARB Submission - @{variables('varProjectName')}",
+        "body": "<p>A new Architecture Review Board submission requires review:</p><p><strong>Submission Details:</strong></p><ul><li>Submission ID: @{variables('varSubmissionID')}</li><li>Project Name: @{variables('varProjectName')}</li><li>Project Type: @{triggerOutputs()?['body/ProjectType']}</li><li>Submitter: @{triggerOutputs()?['body/SubmitterName']}</li><li>Budget Range: @{triggerOutputs()?['body/BudgetRange']}</li><li>Target Date: @{triggerOutputs()?['body/TargetCompletionDate']}</li></ul><p><a href='https://[tenant].sharepoint.com/sites/ARB/Lists/ARB%20Submissions/DispForm.aspx?ID=@{triggerOutputs()?['body/ID']}'>View Submission</a></p><p>Please assign a reviewer and begin the review process.</p>",
+        "importance": "High"
+      }
+    },
+    {
+      "name": "Start Approval Process",
+      "type": "Start and wait for an approval",
+      "connection": "Approvals",
+      "parameters": {
+        "approvalType": "Basic",
+        "title": "ARB Submission Review - @{variables('varProjectName')}",
+        "assignedTo": "arb-reviewers@dps.texas.gov",
+        "details": "Project: @{variables('varProjectName')}\n\nSubmission ID: @{variables('varSubmissionID')}\n\nProject Type: @{triggerOutputs()?['body/ProjectType']}\n\nDescription: @{triggerOutputs()?['body/ProjectDescription']}\n\nBusiness Justification: @{triggerOutputs()?['body/BusinessJustification']}\n\nBudget: @{triggerOutputs()?['body/BudgetRange']}\n\nPlease review and approve or reject this submission.",
+        "itemLink": "https://[tenant].sharepoint.com/sites/ARB/Lists/ARB%20Submissions/DispForm.aspx?ID=@{triggerOutputs()?['body/ID']}",
+        "itemLinkDescription": "View Full Submission"
+      }
+    },
+    {
+      "name": "Condition - Check Approval Response",
+      "type": "Condition",
+      "expression": {
+        "equals": [
+          "@outputs('Start_Approval_Process')?['body/outcome']",
+          "Approve"
+        ]
+      },
+      "actions": {
+        "if_yes": [
+          {
+            "name": "Update Status to Approved",
+            "type": "Update item",
+            "connection": "SharePoint",
+            "parameters": {
+              "siteAddress": "https://[tenant].sharepoint.com/sites/ARB",
+              "listName": "ARB Submissions",
+              "id": "@triggerOutputs()?['body/ID']",
+              "Status": "Approved",
+              "ApprovalDate": "@utcNow()",
+              "ReviewerComments": "@{outputs('Start_Approval_Process')?['body/comments']}"
+            }
+          },
+          {
+            "name": "Send Approval Email to Submitter",
+            "type": "Send an email (V2)",
+            "connection": "Office365",
+            "parameters": {
+              "to": "@{variables('varSubmitterEmail')}",
+              "subject": "ARB Submission Approved - @{variables('varSubmissionID')}",
+              "body": "<p>Dear @{triggerOutputs()?['body/SubmitterName']},</p><p>Congratulations! Your Architecture Review Board submission has been <strong>approved</strong>.</p><p><strong>Submission Details:</strong></p><ul><li>Submission ID: @{variables('varSubmissionID')}</li><li>Project Name: @{variables('varProjectName')}</li><li>Approval Date: @{utcNow('MM/dd/yyyy')}</li></ul><p><strong>Reviewer Comments:</strong></p><p>@{outputs('Start_Approval_Process')?['body/comments']}</p><p>You may now proceed with your project. Please ensure all approved architectural guidelines are followed.</p><p>Thank you,<br>TXDPS ARB Team</p>",
+              "importance": "High"
+            }
+          }
+        ],
+        "if_no": [
+          {
+            "name": "Update Status to Rejected",
+            "type": "Update item",
+            "connection": "SharePoint",
+            "parameters": {
+              "siteAddress": "https://[tenant].sharepoint.com/sites/ARB",
+              "listName": "ARB Submissions",
+              "id": "@triggerOutputs()?['body/ID']",
+              "Status": "Rejected",
+              "ReviewerComments": "@{outputs('Start_Approval_Process')?['body/comments']}"
+            }
+          },
+          {
+            "name": "Send Rejection Email to Submitter",
+            "type": "Send an email (V2)",
+            "connection": "Office365",
+            "parameters": {
+              "to": "@{variables('varSubmitterEmail')}",
+              "subject": "ARB Submission Requires Revision - @{variables('varSubmissionID')}",
+              "body": "<p>Dear @{triggerOutputs()?['body/SubmitterName']},</p><p>Your Architecture Review Board submission requires additional information or revision.</p><p><strong>Submission Details:</strong></p><ul><li>Submission ID: @{variables('varSubmissionID')}</li><li>Project Name: @{variables('varProjectName')}</li></ul><p><strong>Reviewer Comments:</strong></p><p>@{outputs('Start_Approval_Process')?['body/comments']}</p><p>Please address the feedback and resubmit your request.</p><p>Thank you,<br>TXDPS ARB Team</p>",
+              "importance": "Normal"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Log to Audit List",
+      "type": "Create item",
+      "connection": "SharePoint",
+      "parameters": {
+        "siteAddress": "https://[tenant].sharepoint.com/sites/ARB",
+        "listName": "ARB Audit Log",
+        "Title": "Submission @{variables('varSubmissionID')} - @{variables('varStatus')}",
+        "SubmissionID": "@{variables('varSubmissionID')}",
+        "Action": "Workflow Completed",
+        "Actor": "@{outputs('Start_Approval_Process')?['body/approver']}",
+        "Timestamp": "@utcNow()",
+        "Details": "@{outputs('Start_Approval_Process')?['body/comments']}"
+      }
+    }
+  ],
+  "notes": [
+    "Replace [tenant] with your actual SharePoint tenant name",
+    "Ensure all connections (SharePoint, Office365, Approvals) are configured",
+    "Create 'ARB Audit Log' list if logging is desired",
+    "Customize email addresses for your organization",
+    "Adjust approval routing based on your organization structure"
+  ]
+}

@@ -1,0 +1,318 @@
+{
+  "name": "User Lifecycle Automation",
+  "description": "Automated workflows for employee onboarding, offboarding, and role changes related to ARB access and permissions",
+  "workflows": [
+    {
+      "name": "Employee Onboarding - ARB Access",
+      "trigger": {
+        "type": "When an item is created or modified",
+        "connection": "SharePoint",
+        "parameters": {
+          "siteAddress": "https://[tenant].sharepoint.com/sites/HR",
+          "listName": "New Employees",
+          "filter": "NeedsARBAccess eq true"
+        }
+      },
+      "actions": [
+        {
+          "name": "Get Employee Details",
+          "type": "Get item",
+          "connection": "SharePoint",
+          "parameters": {
+            "siteAddress": "https://[tenant].sharepoint.com/sites/HR",
+            "listName": "New Employees",
+            "id": "@triggerOutputs()?['body/ID']"
+          }
+        },
+        {
+          "name": "Determine ARB Role",
+          "type": "Switch",
+          "expression": "@outputs('Get_Employee_Details')?['body/ARBRole']",
+          "cases": {
+            "Administrator": [
+              {
+                "name": "Add to ARB Administrators Group",
+                "type": "HTTP",
+                "parameters": {
+                  "method": "POST",
+                  "uri": "https://[tenant].sharepoint.com/sites/ARB/_api/web/sitegroups/getbyname('ARB Administrators')/users",
+                  "headers": {
+                    "Accept": "application/json;odata=verbose",
+                    "Content-Type": "application/json;odata=verbose"
+                  },
+                  "body": {
+                    "LoginName": "i:0#.f|membership|@{outputs('Get_Employee_Details')?['body/Email']}"
+                  }
+                }
+              }
+            ],
+            "Reviewer": [
+              {
+                "name": "Add to ARB Reviewers Group",
+                "type": "HTTP",
+                "parameters": {
+                  "method": "POST",
+                  "uri": "https://[tenant].sharepoint.com/sites/ARB/_api/web/sitegroups/getbyname('ARB Reviewers')/users"
+                }
+              }
+            ],
+            "Submitter": [
+              {
+                "name": "Add to All Employees Group",
+                "type": "HTTP",
+                "parameters": {
+                  "method": "POST",
+                  "uri": "https://[tenant].sharepoint.com/sites/ARB/_api/web/sitegroups/getbyname('All Employees')/users"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Send Welcome Email",
+          "type": "Send an email (V2)",
+          "connection": "Office365",
+          "parameters": {
+            "to": "@{outputs('Get_Employee_Details')?['body/Email']}",
+            "subject": "Welcome to TXDPS ARB System",
+            "body": "<p>Dear @{outputs('Get_Employee_Details')?['body/Title']},</p><p>Welcome to the Texas Department of Public Safety! Your access to the Architecture Review Board (ARB) system has been provisioned.</p><p><strong>Your Role:</strong> @{outputs('Get_Employee_Details')?['body/ARBRole']}</p><p><strong>Access Information:</strong></p><ul><li>ARB Portal: <a href='https://[tenant].sharepoint.com/sites/ARB'>https://[tenant].sharepoint.com/sites/ARB</a></li><li>Submit ARB Request: <a href='https://[tenant].sharepoint.com/sites/ARB/SiteAssets/ARBForm/index.html'>ARB Form</a></li><li>Documentation: <a href='https://[tenant].sharepoint.com/sites/ARB/SitePages/Documentation.aspx'>ARB Documentation</a></li></ul><p><strong>Training Resources:</strong></p><ul><li>ARB Overview (required for all users)</li><li>Submission Guidelines (for submitters)</li><li>Review Process (for reviewers)</li></ul><p>If you have any questions, please contact the ARB team at arb-support@dps.texas.gov</p><p>Best regards,<br>TXDPS IT Team</p>"
+          }
+        },
+        {
+          "name": "Assign Training Modules",
+          "type": "Create item",
+          "connection": "SharePoint",
+          "parameters": {
+            "siteAddress": "https://[tenant].sharepoint.com/sites/Training",
+            "listName": "Training Assignments",
+            "Title": "ARB Training - @{outputs('Get_Employee_Details')?['body/Title']}",
+            "EmployeeEmail": "@{outputs('Get_Employee_Details')?['body/Email']}",
+            "TrainingModule": "ARB System Overview",
+            "DueDate": "@addDays(utcNow(), 14)",
+            "Status": "Assigned"
+          }
+        },
+        {
+          "name": "Log Onboarding Action",
+          "type": "Create item",
+          "connection": "SharePoint",
+          "parameters": {
+            "siteAddress": "https://[tenant].sharepoint.com/sites/ARB",
+            "listName": "ARB Audit Log",
+            "Title": "User Onboarded - @{outputs('Get_Employee_Details')?['body/Title']}",
+            "Action": "Onboarding",
+            "Actor": "System",
+            "UserEmail": "@{outputs('Get_Employee_Details')?['body/Email']}",
+            "Role": "@{outputs('Get_Employee_Details')?['body/ARBRole']}",
+            "Timestamp": "@utcNow()"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employee Offboarding - ARB Access Removal",
+      "trigger": {
+        "type": "When an item is created or modified",
+        "connection": "SharePoint",
+        "parameters": {
+          "siteAddress": "https://[tenant].sharepoint.com/sites/HR",
+          "listName": "Employee Terminations",
+          "filter": "Status eq 'Active'"
+        }
+      },
+      "actions": [
+        {
+          "name": "Get Termination Details",
+          "type": "Get item",
+          "connection": "SharePoint",
+          "parameters": {
+            "siteAddress": "https://[tenant].sharepoint.com/sites/HR",
+            "listName": "Employee Terminations",
+            "id": "@triggerOutputs()?['body/ID']"
+          }
+        },
+        {
+          "name": "Get User Submissions",
+          "type": "Get items",
+          "connection": "SharePoint",
+          "parameters": {
+            "siteAddress": "https://[tenant].sharepoint.com/sites/ARB",
+            "listName": "ARB Submissions",
+            "filter": "SubmitterEmail eq '@{outputs('Get_Termination_Details')?['body/Email']}'"
+          }
+        },
+        {
+          "name": "Check for Active Submissions",
+          "type": "Condition",
+          "expression": {
+            "greater": [
+              "@length(outputs('Get_User_Submissions')?['body/value'])",
+              0
+            ]
+          },
+          "actions": {
+            "if_yes": [
+              {
+                "name": "Notify Manager - Reassign Submissions",
+                "type": "Send an email (V2)",
+                "connection": "Office365",
+                "parameters": {
+                  "to": "@{outputs('Get_Termination_Details')?['body/ManagerEmail']}",
+                  "subject": "Action Required: Reassign ARB Submissions for @{outputs('Get_Termination_Details')?['body/EmployeeName']}",
+                  "body": "<p>The following employee has active ARB submissions that need to be reassigned:</p><p><strong>Employee:</strong> @{outputs('Get_Termination_Details')?['body/EmployeeName']}</p><p><strong>Number of Active Submissions:</strong> @{length(outputs('Get_User_Submissions')?['body/value'])}</p><p>Please review and reassign these submissions before the employee's access is removed.</p><p><a href='https://[tenant].sharepoint.com/sites/ARB/Lists/ARB%20Submissions'>View Submissions</a></p>",
+                  "importance": "High"
+                }
+              }
+            ],
+            "if_no": []
+          }
+        },
+        {
+          "name": "Remove from All ARB Groups",
+          "type": "Compose",
+          "actions": [
+            {
+              "name": "Remove from ARB Administrators",
+              "type": "HTTP",
+              "parameters": {
+                "method": "POST",
+                "uri": "https://[tenant].sharepoint.com/sites/ARB/_api/web/sitegroups/getbyname('ARB Administrators')/users/removebyloginname",
+                "headers": {
+                  "Accept": "application/json;odata=verbose"
+                },
+                "body": {
+                  "loginName": "@{outputs('Get_Termination_Details')?['body/Email']}"
+                }
+              }
+            },
+            {
+              "name": "Remove from ARB Reviewers",
+              "type": "HTTP",
+              "parameters": {
+                "method": "POST",
+                "uri": "https://[tenant].sharepoint.com/sites/ARB/_api/web/sitegroups/getbyname('ARB Reviewers')/users/removebyloginname"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Archive User Documents",
+          "type": "HTTP",
+          "parameters": {
+            "method": "POST",
+            "uri": "https://[tenant].sharepoint.com/sites/ARB/_api/web/lists/getbytitle('ARB Documents')/items",
+            "body": {
+              "$filter": "Author/EMail eq '@{outputs('Get_Termination_Details')?['body/Email']}'",
+              "action": "move",
+              "destination": "/sites/ARB/Archive"
+            }
+          }
+        },
+        {
+          "name": "Send Offboarding Confirmation",
+          "type": "Send an email (V2)",
+          "connection": "Office365",
+          "parameters": {
+            "to": "arb-admins@dps.texas.gov",
+            "subject": "ARB Access Removed - @{outputs('Get_Termination_Details')?['body/EmployeeName']}",
+            "body": "<p>ARB access has been removed for the following user:</p><ul><li>Name: @{outputs('Get_Termination_Details')?['body/EmployeeName']}</li><li>Email: @{outputs('Get_Termination_Details')?['body/Email']}</li><li>Termination Date: @{outputs('Get_Termination_Details')?['body/TerminationDate']}</li><li>Active Submissions: @{length(outputs('Get_User_Submissions')?['body/value'])}</li></ul><p>All permissions have been revoked and documents have been archived.</p>"
+          }
+        },
+        {
+          "name": "Log Offboarding Action",
+          "type": "Create item",
+          "connection": "SharePoint",
+          "parameters": {
+            "siteAddress": "https://[tenant].sharepoint.com/sites/ARB",
+            "listName": "ARB Audit Log",
+            "Title": "User Offboarded - @{outputs('Get_Termination_Details')?['body/EmployeeName']}",
+            "Action": "Offboarding",
+            "Actor": "System",
+            "UserEmail": "@{outputs('Get_Termination_Details')?['body/Email']}",
+            "Timestamp": "@utcNow()"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Role Change - Update ARB Permissions",
+      "trigger": {
+        "type": "When an item is created or modified",
+        "connection": "SharePoint",
+        "parameters": {
+          "siteAddress": "https://[tenant].sharepoint.com/sites/HR",
+          "listName": "Role Changes",
+          "filter": "AffectsARBAccess eq true"
+        }
+      },
+      "actions": [
+        {
+          "name": "Get Role Change Details",
+          "type": "Get item",
+          "connection": "SharePoint",
+          "parameters": {
+            "siteAddress": "https://[tenant].sharepoint.com/sites/HR",
+            "listName": "Role Changes",
+            "id": "@triggerOutputs()?['body/ID']"
+          }
+        },
+        {
+          "name": "Remove from Old Role Group",
+          "type": "HTTP",
+          "parameters": {
+            "method": "POST",
+            "uri": "https://[tenant].sharepoint.com/sites/ARB/_api/web/sitegroups/getbyname('@{outputs('Get_Role_Change_Details')?['body/OldARBRole']}')/users/removebyloginname",
+            "body": {
+              "loginName": "@{outputs('Get_Role_Change_Details')?['body/Email']}"
+            }
+          }
+        },
+        {
+          "name": "Add to New Role Group",
+          "type": "HTTP",
+          "parameters": {
+            "method": "POST",
+            "uri": "https://[tenant].sharepoint.com/sites/ARB/_api/web/sitegroups/getbyname('@{outputs('Get_Role_Change_Details')?['body/NewARBRole']}')/users",
+            "body": {
+              "LoginName": "i:0#.f|membership|@{outputs('Get_Role_Change_Details')?['body/Email']}"
+            }
+          }
+        },
+        {
+          "name": "Send Role Change Notification",
+          "type": "Send an email (V2)",
+          "connection": "Office365",
+          "parameters": {
+            "to": "@{outputs('Get_Role_Change_Details')?['body/Email']}",
+            "subject": "ARB Role Updated",
+            "body": "<p>Dear @{outputs('Get_Role_Change_Details')?['body/EmployeeName']},</p><p>Your ARB system role has been updated:</p><ul><li>Previous Role: @{outputs('Get_Role_Change_Details')?['body/OldARBRole']}</li><li>New Role: @{outputs('Get_Role_Change_Details')?['body/NewARBRole']}</li><li>Effective Date: @{utcNow('MM/dd/yyyy')}</li></ul><p>Your permissions have been updated accordingly. If you have questions about your new role, please contact arb-support@dps.texas.gov</p>"
+          }
+        },
+        {
+          "name": "Log Role Change",
+          "type": "Create item",
+          "connection": "SharePoint",
+          "parameters": {
+            "siteAddress": "https://[tenant].sharepoint.com/sites/ARB",
+            "listName": "ARB Audit Log",
+            "Title": "Role Changed - @{outputs('Get_Role_Change_Details')?['body/EmployeeName']}",
+            "Action": "Role Change",
+            "Actor": "System",
+            "UserEmail": "@{outputs('Get_Role_Change_Details')?['body/Email']}",
+            "Details": "From @{outputs('Get_Role_Change_Details')?['body/OldARBRole']} to @{outputs('Get_Role_Change_Details')?['body/NewARBRole']}",
+            "Timestamp": "@utcNow()"
+          }
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Replace [tenant] with your actual SharePoint tenant name",
+    "Ensure HR lists (New Employees, Employee Terminations, Role Changes) exist",
+    "Create ARB Audit Log list for tracking lifecycle events",
+    "Configure SharePoint groups: ARB Administrators, ARB Reviewers, All Employees",
+    "Customize email addresses and SharePoint URLs for your organization",
+    "Test thoroughly in a non-production environment first",
+    "Consider compliance and data retention policies when archiving"
+  ]
+}

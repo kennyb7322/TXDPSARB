@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "txdps-arb-webpart",
+    "id": "txdps-arb-solution-id",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "Texas Department of Public Safety",
+      "websiteUrl": "https://www.dps.texas.gov",
+      "privacyUrl": "https://www.dps.texas.gov/privacy",
+      "termsOfUseUrl": "https://www.dps.texas.gov/terms",
+      "mpnId": ""
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "TXDPS Architecture Review Board submission form web part"
+      },
+      "longDescription": {
+        "default": "SPFx web part that hosts the TXDPS ARB submission form in an iframe, providing a seamless embedded experience in SharePoint pages."
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": ["Forms", "Process"]
+    },
+    "features": [
+      {
+        "title": "TXDPS ARB Form Feature",
+        "description": "Feature for TXDPS ARB submission form web part",
+        "id": "txdps-arb-feature-id",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/txdps-arb-webpart.sppkg"
+  }
+}

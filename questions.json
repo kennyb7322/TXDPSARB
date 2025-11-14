@@ -1,0 +1,152 @@
+[
+  {
+    "id": "submitter_name",
+    "type": "text",
+    "label": "Submitter Name",
+    "help": "Enter your full name",
+    "required": true,
+    "domain": "General Information"
+  },
+  {
+    "id": "submitter_email",
+    "type": "email",
+    "label": "Submitter Email",
+    "help": "Enter your email address for correspondence",
+    "required": true,
+    "domain": "General Information"
+  },
+  {
+    "id": "project_name",
+    "type": "text",
+    "label": "Project Name",
+    "help": "Enter the name of the project or initiative",
+    "required": true,
+    "domain": "Project Details"
+  },
+  {
+    "id": "project_description",
+    "type": "textarea",
+    "label": "Project Description",
+    "help": "Provide a detailed description of the project",
+    "required": true,
+    "domain": "Project Details"
+  },
+  {
+    "id": "project_type",
+    "type": "select",
+    "label": "Project Type",
+    "help": "Select the type of project",
+    "required": true,
+    "domain": "Project Details",
+    "options": [
+      { "value": "new_application", "label": "New Application" },
+      { "value": "enhancement", "label": "Enhancement" },
+      { "value": "integration", "label": "Integration" },
+      { "value": "infrastructure", "label": "Infrastructure" },
+      { "value": "security", "label": "Security" }
+    ],
+    "branches": [
+      {
+        "condition": "new_application",
+        "nextQuestion": "application_platform"
+      },
+      {
+        "condition": "security",
+        "nextQuestion": "security_requirements"
+      }
+    ]
+  },
+  {
+    "id": "application_platform",
+    "type": "select",
+    "label": "Application Platform",
+    "help": "Select the primary platform for the application",
+    "required": false,
+    "domain": "Technical Architecture",
+    "options": [
+      { "value": "web", "label": "Web Application" },
+      { "value": "mobile", "label": "Mobile Application" },
+      { "value": "desktop", "label": "Desktop Application" },
+      { "value": "cloud", "label": "Cloud Service" }
+    ]
+  },
+  {
+    "id": "security_requirements",
+    "type": "textarea",
+    "label": "Security Requirements",
+    "help": "Describe the security requirements for this project",
+    "required": false,
+    "domain": "Security & Compliance"
+  },
+  {
+    "id": "estimated_users",
+    "type": "text",
+    "label": "Estimated Number of Users",
+    "help": "Approximate number of users expected to use this system",
+    "required": true,
+    "domain": "Capacity Planning"
+  },
+  {
+    "id": "budget_range",
+    "type": "select",
+    "label": "Budget Range",
+    "help": "Select the estimated budget range for this project",
+    "required": true,
+    "domain": "Financial",
+    "options": [
+      { "value": "under_50k", "label": "Under $50,000" },
+      { "value": "50k_100k", "label": "$50,000 - $100,000" },
+      { "value": "100k_500k", "label": "$100,000 - $500,000" },
+      { "value": "500k_1m", "label": "$500,000 - $1,000,000" },
+      { "value": "over_1m", "label": "Over $1,000,000" }
+    ]
+  },
+  {
+    "id": "target_date",
+    "type": "date",
+    "label": "Target Completion Date",
+    "help": "When do you expect this project to be completed?",
+    "required": true,
+    "domain": "Timeline"
+  },
+  {
+    "id": "business_justification",
+    "type": "textarea",
+    "label": "Business Justification",
+    "help": "Explain the business need and expected benefits",
+    "required": true,
+    "domain": "Business Value"
+  },
+  {
+    "id": "risk_assessment",
+    "type": "textarea",
+    "label": "Risk Assessment",
+    "help": "Identify potential risks and mitigation strategies",
+    "required": false,
+    "domain": "Risk Management"
+  },
+  {
+    "id": "dependencies",
+    "type": "textarea",
+    "label": "Dependencies",
+    "help": "List any dependencies on other systems or projects",
+    "required": false,
+    "domain": "Integration"
+  },
+  {
+    "id": "compliance_requirements",
+    "type": "textarea",
+    "label": "Compliance Requirements",
+    "help": "Describe any compliance or regulatory requirements (CJIS, HIPAA, etc.)",
+    "required": false,
+    "domain": "Compliance"
+  },
+  {
+    "id": "additional_comments",
+    "type": "textarea",
+    "label": "Additional Comments",
+    "help": "Any other information you would like to provide",
+    "required": false,
+    "domain": "General Information"
+  }
+]

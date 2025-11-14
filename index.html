@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TXDPS Architecture Review Board (ARB) Intake</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" href="assets/LOGO.png">
+  <!-- Optional: local SheetJS for XLSX export. If not found, app will fall back to CSV -->
+  <script defer src="vendor/xlsx.full.min.js"></script>
+  <script defer type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="app-header" role="banner">
+    <div class="logo-title">
+      <img src="assets/LOGO.png" alt="Texas Department of Public Safety logo" class="logo" />
+      <div>
+        <h1>Texas Department of Public Safety</h1>
+        <h2>Architecture Review Board (ARB) Intake & Documentation</h2>
+      </div>
+    </div>
+    <div class="header-tools">
+      <button id="btnDocs" class="secondary">Documentation</button>
+      <button id="btnDashboard" class="secondary" aria-controls="dashboardView">Dashboard</button>
+      <button id="btnForm" class="secondary" aria-controls="formView" hidden>Return to Form</button>
+    </div>
+  </header>
+
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <ol id="breadcrumb">
+      <li><a href="#" data-nav="home">Start</a></li>
+    </ol>
+    <div class="progress-wrapper" aria-label="Completion">
+      <progress id="progress" value="0" max="100"></progress>
+      <span id="progressText" class="muted">0% Complete</span>
+    </div>
+  </nav>
+
+  <main class="layout">
+    <aside id="toc" class="toc" aria-label="Sections">
+      <div class="toc-header">
+        <strong>Sections</strong>
+        <input id="sectionSearch" type="search" placeholder="Filter sections…" aria-label="Filter sections" />
+      </div>
+      <ul id="sectionList" class="section-list" role="tablist"></ul>
+
+      <div class="sticky-tools">
+        <button id="btnSaveDraft" class="secondary">Save Draft</button>
+        <button id="btnLoadDraft" class="secondary">Load Draft</button>
+        <button id="btnClear" class="ghost">Clear</button>
+      </div>
+    </aside>
+
+    <section id="formView" class="content" role="region" aria-live="polite">
+      <!-- dynamic form content will render here -->
+      <div id="formContainer"></div>
+      <div class="form-actions">
+        <button id="btnPrev" class="secondary">&larr; Previous</button>
+        <button id="btnNext" class="primary">Next &rarr;</button>
+        <button id="btnSubmit" class="success">Submit & Export</button>
+      </div>
+    </section>
+
+    <aside id="docsDrawer" class="docs" hidden aria-label="Documentation">
+      <article id="docsContent" class="docs-content" tabindex="0">
+        <!-- loaded from docs/documentation.md -->
+      </article>
+    </aside>
+
+    <section id="dashboardView" class="dashboard" hidden aria-label="Dashboard">
+      <h3>Submission Summary</h3>
+      <div class="cards">
+        <div class="card">
+          <div class="card-title">Overall Completion</div>
+          <div class="big-number" id="dashCompletion">0%</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Domains Answered</div>
+          <div class="big-number" id="dashDomains">0/0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Attachments Tagged</div>
+          <div class="big-number" id="dashDocs">0</div>
+        </div>
+      </div>
+      <div id="domainBreakdown" class="domain-breakdown"></div>
+      <div class="export-actions">
+        <button id="btnExportXLSX" class="primary">Export to Excel (.xlsx)</button>
+        <button id="btnExportCSV" class="secondary">Export to CSV</button>
+        <button id="btnExportJSON" class="secondary">Export to JSON</button>
+        <button id="btnExportHTML" class="secondary">Export Report (.html)</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>© <span id="year"></span> Texas Department of Public Safety – Information Technology. Courtesy • Service • Protection.</div>
+    <div class="tiny">This tool is provided for ARB intake, documentation, and governance workflows. It includes optional integrations for Microsoft Forms, SharePoint, Power Automate, and Power BI.</div>
+  </footer>
+
+  <!-- Templates -->
+  <template id="fieldTemplate">
+    <div class="field">
+      <label></label>
+      <div class="input-wrap"></div>
+      <div class="help"></div>
+    </div>
+  </template>
+</body>
+</html>

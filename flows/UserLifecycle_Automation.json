@@ -1,0 +1,93 @@
+{
+  "name": "TXDPS_UserLifecycle_Automation",
+  "summary": "On SharePoint list item create/update, automate onboarding/offboarding/role changes using Azure AD and M365.",
+  "trigger": {
+    "type": "When_an_item_is_created_or_modified",
+    "connector": "SharePoint",
+    "parameters": {
+      "siteAddress": "https://<tenant>.sharepoint.com/sites/TXDPS",
+      "listName": "ARB Submissions"
+    }
+  },
+  "actions": [
+    {
+      "type": "Parse_AnswersJSON",
+      "connector": "Data Operations",
+      "parameters": {
+        "content": "@{triggerBody()?['AnswersJSON']}"
+      }
+    },
+    {
+      "type": "Switch_on_Lifecycle",
+      "connector": "Built-in",
+      "parameters": {
+        "expression": "@coalesce(body('Parse_AnswersJSON')?['lifecycle'],'')",
+        "cases": [
+          {
+            "equals": "Onboarding",
+            "steps": [
+              {
+                "type": "AzureAD_CreateUser",
+                "connector": "Azure AD",
+                "parameters": {
+                  "displayName": "@{body('Parse_AnswersJSON')?['contact']}",
+                  "mailNickname": "@{concat('arb-',utcNow())}",
+                  "userPrincipalName": "<generated>",
+                  "accountEnabled": true
+                }
+              },
+              {
+                "type": "Add_User_to_Groups",
+                "connector": "Azure AD",
+                "parameters": {
+                  "groups": [
+                    "ARB-Readers",
+                    "ARB-Contributors"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "equals": "Offboarding",
+            "steps": [
+              {
+                "type": "Disable_User",
+                "connector": "Azure AD",
+                "parameters": {
+                  "userPrincipalName": "@{body('Parse_AnswersJSON')?['email']}"
+                }
+              }
+            ]
+          },
+          {
+            "equals": "Role Change (existing user)",
+            "steps": [
+              {
+                "type": "Update_User_Groups",
+                "connector": "Azure AD",
+                "parameters": {
+                  "addGroups": [
+                    "ARB-Readers"
+                  ],
+                  "removeGroups": [
+                    "ARB-Temporary"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "Post_To_Teams",
+      "connector": "Microsoft Teams",
+      "parameters": {
+        "team": "TXDPS-ARB",
+        "channel": "General",
+        "message": "Lifecycle automation executed for @{triggerBody()?['Title']}."
+      }
+    }
+  ]
+}

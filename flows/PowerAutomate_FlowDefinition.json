@@ -1,0 +1,99 @@
+{
+  "name": "TXDPS_ARB_Intake_Flow",
+  "summary": "Capture ARB submissions from Microsoft Forms or HTTP, write to SharePoint list and Excel, store attachments, start approvals for regulated data.",
+  "triggers": [
+    {
+      "type": "When_a_new_response_is_submitted",
+      "connector": "Microsoft Forms",
+      "parameters": {
+        "formId": "TXDPS ARB \u2013 Intake"
+      }
+    },
+    {
+      "type": "HTTP_Request_Received",
+      "connector": "Built-in",
+      "parameters": {
+        "relativePath": "/arb/submit"
+      }
+    }
+  ],
+  "actions": [
+    {
+      "type": "Get_response_details",
+      "connector": "Microsoft Forms",
+      "parameters": {
+        "formId": "TXDPS ARB \u2013 Intake",
+        "responseId": "@{triggerBody()?['resourceData']?['responseId']}"
+      }
+    },
+    {
+      "type": "Compose_JSON",
+      "connector": "Data Operations",
+      "parameters": {
+        "input": "@{triggerBody()}"
+      }
+    },
+    {
+      "type": "Create_item",
+      "connector": "SharePoint",
+      "parameters": {
+        "siteAddress": "https://<tenant>.sharepoint.com/sites/TXDPS",
+        "listName": "ARB Submissions",
+        "item": {
+          "Title": "@{outputs('Get_response_details')?['body/Project_Name']}",
+          "RequestType": "@{outputs('Get_response_details')?['body/Request_Type']}",
+          "SolutionArea": "@{outputs('Get_response_details')?['body/Primary_Solution_Area']}",
+          "Classification": "@{outputs('Get_response_details')?['body/Data_Classification']}",
+          "ContainsPII": "@{outputs('Get_response_details')?['body/Contains_PII_PHICJI']}",
+          "SubmittedBy": "@{triggerOutputs()?['headers']?['x-ms-user-name']}",
+          "SubmittedAt": "@{utcNow()}",
+          "AnswersJSON": "@{string(outputs('Get_response_details')?['body'])}"
+        }
+      }
+    },
+    {
+      "type": "Add_a_row_into_a_table",
+      "connector": "Excel Online (Business)",
+      "parameters": {
+        "location": "SharePoint",
+        "documentLibrary": "TXDPS-ARB",
+        "file": "ARB_Submissions.xlsx",
+        "table": "Table1",
+        "row": {
+          "SubmittedAt": "@{utcNow()}",
+          "ProjectName": "@{outputs('Get_response_details')?['body/Project_Name']}",
+          "RequestType": "@{outputs('Get_response_details')?['body/Request_Type']}",
+          "SolutionArea": "@{outputs('Get_response_details')?['body/Primary_Solution_Area']}"
+        }
+      }
+    },
+    {
+      "type": "Condition",
+      "connector": "Built-in",
+      "parameters": {
+        "expression": "@equals(outputs('Get_response_details')?['body/Data_Classification'],'Regulated (CJIS/PCI/HIPAA)')",
+        "ifTrue": [
+          {
+            "type": "Start_and_wait_for_an_approval",
+            "connector": "Approvals",
+            "parameters": {
+              "Title": "ARB Approval Required (Regulated Data)",
+              "AssignedTo": "arb@txdps.texas.gov",
+              "Details": "@{string(outputs('Get_response_details')?['body'])}"
+            }
+          }
+        ],
+        "ifFalse": []
+      }
+    },
+    {
+      "type": "Send_an_email",
+      "connector": "Office 365 Outlook",
+      "parameters": {
+        "To": "@{outputs('Get_response_details')?['body/Contact_Email']}",
+        "Subject": "TXDPS ARB intake received",
+        "Body": "Thank you. Your ARB intake was received on @{utcNow()}."
+      }
+    }
+  ]
+}

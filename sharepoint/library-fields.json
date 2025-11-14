@@ -1,0 +1,31 @@
+{
+  "LibraryTitle": "TXDPS-ARB",
+  "Fields": [
+    {
+      "InternalName": "Domain",
+      "DisplayName": "Domain",
+      "Type": "Choice",
+      "Choices": [
+        "D",
+        "E",
+        "A",
+        "DD",
+        "O",
+        "N",
+        "I",
+        "H",
+        "II",
+        "G",
+        "AI",
+        "R",
+        "S",
+        "M"
+      ]
+    },
+    {
+      "InternalName": "Tags",
+      "DisplayName": "Tags",
+      "Type": "Note"
+    }
+  ]
+}

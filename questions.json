@@ -1,0 +1,563 @@
+{
+  "version": "1.0.0",
+  "title": "TXDPS ARB Intake",
+  "description": "Interactive form to collect Architecture Review Board (ARB) intake information with branching, tooltips, and export.",
+  "domains": [
+    {
+      "code": "D",
+      "name": "Design and Data Architecture"
+    },
+    {
+      "code": "E",
+      "name": "Engineering and Execution"
+    },
+    {
+      "code": "A",
+      "name": "Architecture and Application"
+    },
+    {
+      "code": "DD",
+      "name": "Development and DevOps"
+    },
+    {
+      "code": "O",
+      "name": "Operations Management"
+    },
+    {
+      "code": "N",
+      "name": "Network and Connectivity"
+    },
+    {
+      "code": "I",
+      "name": "Infrastructure Standards"
+    },
+    {
+      "code": "H",
+      "name": "Hardware and High Availability"
+    },
+    {
+      "code": "II",
+      "name": "Implementation and Integration"
+    },
+    {
+      "code": "G",
+      "name": "Governance and Compliance"
+    },
+    {
+      "code": "AI",
+      "name": "Administration and Identity Management"
+    },
+    {
+      "code": "R",
+      "name": "Reference Architecture and Documentation"
+    },
+    {
+      "code": "S",
+      "name": "Security (Cybersecurity)"
+    },
+    {
+      "code": "M",
+      "name": "Monitoring, Auditing, Metrics, and BI"
+    }
+  ],
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Project Overview",
+      "domain": "R",
+      "help": "High-level context for the ARB request. Provide accurate details for routing and prioritization.",
+      "fields": [
+        {
+          "id": "projectName",
+          "label": "Project Name",
+          "type": "text",
+          "required": true,
+          "tooltip": "Official project/program name used by TXDPS."
+        },
+        {
+          "id": "sponsor",
+          "label": "Business Sponsor/Owner",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "requestType",
+          "label": "Request Type",
+          "type": "select",
+          "options": [
+            "New Solution",
+            "Enhancement",
+            "Renewal",
+            "Sunset/Retire"
+          ],
+          "required": true,
+          "tooltip": "Select the scenario that best describes this request."
+        },
+        {
+          "id": "lifecycle",
+          "label": "User Lifecycle Impact",
+          "type": "checkbox",
+          "options": [
+            "Onboarding",
+            "Offboarding",
+            "Role Change (existing user)",
+            "No user impact"
+          ],
+          "required": true,
+          "tooltip": "Select all that apply."
+        },
+        {
+          "id": "solutionArea",
+          "label": "Primary Solution Area",
+          "type": "select",
+          "options": [
+            "Application",
+            "Data",
+            "Integration",
+            "Network",
+            "Device/Hardware",
+            "Infrastructure",
+            "Security",
+            "Operations"
+          ],
+          "required": true
+        },
+        {
+          "id": "contact",
+          "label": "Primary Technical Contact",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "email",
+          "label": "Contact Email",
+          "type": "email",
+          "required": true
+        },
+        {
+          "id": "attachments",
+          "label": "Attach Supporting Documents (names only; files uploaded in SharePoint)",
+          "type": "multitext",
+          "placeholder": "e.g., design.docx, diagram.vsdx",
+          "help": "Use the SharePoint library created by the deployment script. Paste filenames here to tag and export metadata."
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "title": "Security & Compliance",
+      "domain": "S",
+      "branch": {
+        "showWhen": {
+          "solutionArea": [
+            "Application",
+            "Data",
+            "Integration",
+            "Infrastructure",
+            "Security",
+            "Operations",
+            "Network"
+          ]
+        }
+      },
+      "fields": [
+        {
+          "id": "classification",
+          "label": "Data Classification",
+          "type": "select",
+          "options": [
+            "Public",
+            "Internal",
+            "Confidential",
+            "Regulated (CJIS/PCI/HIPAA)"
+          ],
+          "required": true,
+          "tooltip": "Choose the highest classification of data processed or stored."
+        },
+        {
+          "id": "containsPII",
+          "label": "Contains PII/PHI/CJI",
+          "type": "toggle",
+          "required": true
+        },
+        {
+          "id": "threatModel",
+          "label": "Threat Model Available",
+          "type": "select",
+          "options": [
+            "Yes",
+            "In progress",
+            "No"
+          ],
+          "required": true
+        },
+        {
+          "id": "controls",
+          "label": "Key Security Controls",
+          "type": "textarea",
+          "rows": 4,
+          "help": "Summarize IAM, encryption, network segmentation, endpoint, and monitoring controls."
+        },
+        {
+          "id": "standards",
+          "label": "TXDPS / State Standards Alignment",
+          "type": "checkbox",
+          "options": [
+            "NIST 800-53",
+            "CIS Controls",
+            "CJIS",
+            "PCI DSS",
+            "HIPAA",
+            "Texas DIR Standards"
+          ],
+          "tooltip": "Select all relevant controls/standards."
+        }
+      ]
+    },
+    {
+      "id": "dataDesign",
+      "title": "Design & Data Architecture",
+      "domain": "D",
+      "branch": {
+        "showWhen": {
+          "solutionArea": [
+            "Data",
+            "Application",
+            "Integration"
+          ]
+        }
+      },
+      "fields": [
+        {
+          "id": "dataFlow",
+          "label": "Describe Data Flows",
+          "type": "textarea",
+          "rows": 4,
+          "required": true
+        },
+        {
+          "id": "dataStore",
+          "label": "Primary Data Stores",
+          "type": "checkbox",
+          "options": [
+            "SQL Server",
+            "Oracle",
+            "PostgreSQL",
+            "Cosmos DB",
+            "Data Lake",
+            "File Storage",
+            "Other"
+          ]
+        },
+        {
+          "id": "piiMasking",
+          "label": "PII Masking/Tokenization",
+          "type": "select",
+          "options": [
+            "N/A",
+            "Yes",
+            "Planned"
+          ],
+          "tooltip": "Indicate if PII is masked in non-prod and analytics contexts."
+        }
+      ]
+    },
+    {
+      "id": "appArch",
+      "title": "Application Architecture",
+      "domain": "A",
+      "branch": {
+        "showWhen": {
+          "solutionArea": [
+            "Application"
+          ]
+        }
+      },
+      "fields": [
+        {
+          "id": "appType",
+          "label": "Application Type",
+          "type": "select",
+          "options": [
+            "Web",
+            "Mobile",
+            "Desktop",
+            "Service/API",
+            "Low-code/Power Platform"
+          ]
+        },
+        {
+          "id": "devStack",
+          "label": "Tech Stack",
+          "type": "multitext",
+          "placeholder": "e.g., .NET 8, React, SQL Server"
+        },
+        {
+          "id": "hosting",
+          "label": "Hosting",
+          "type": "select",
+          "options": [
+            "On-Prem",
+            "Azure App Service",
+            "AKS",
+            "VMs",
+            "Other"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "devops",
+      "title": "Development & DevOps",
+      "domain": "DD",
+      "branch": {
+        "showWhen": {
+          "solutionArea": [
+            "Application",
+            "Integration",
+            "Data",
+            "Infrastructure",
+            "Security"
+          ]
+        }
+      },
+      "fields": [
+        {
+          "id": "repo",
+          "label": "Source Repository",
+          "type": "select",
+          "options": [
+            "Azure DevOps",
+            "GitHub",
+            "Other"
+          ]
+        },
+        {
+          "id": "pipeline",
+          "label": "CI/CD Pipeline",
+          "type": "select",
+          "options": [
+            "Azure DevOps Pipelines",
+            "GitHub Actions",
+            "Manual",
+            "Other"
+          ]
+        },
+        {
+          "id": "testing",
+          "label": "Automated Testing Coverage (%)",
+          "type": "number",
+          "min": 0,
+          "max": 100
+        }
+      ]
+    },
+    {
+      "id": "network",
+      "title": "Network & Connectivity",
+      "domain": "N",
+      "branch": {
+        "showWhen": {
+          "solutionArea": [
+            "Network",
+            "Infrastructure",
+            "Security",
+            "Application"
+          ]
+        }
+      },
+      "fields": [
+        {
+          "id": "zones",
+          "label": "Network Zones",
+          "type": "checkbox",
+          "options": [
+            "Public",
+            "DMZ",
+            "Internal",
+            "Restricted",
+            "CJIS"
+          ]
+        },
+        {
+          "id": "connectivity",
+          "label": "Connectivity Requirements",
+          "type": "multitext",
+          "placeholder": "e.g., Site-to-site VPN, ExpressRoute, Firewall ports"
+        }
+      ]
+    },
+    {
+      "id": "infra",
+      "title": "Infrastructure & High Availability",
+      "domain": "I",
+      "branch": {
+        "showWhen": {
+          "solutionArea": [
+            "Infrastructure",
+            "Application",
+            "Data",
+            "Security",
+            "Network"
+          ]
+        }
+      },
+      "fields": [
+        {
+          "id": "platform",
+          "label": "Platform",
+          "type": "select",
+          "options": [
+            "VMware",
+            "Hyper-V",
+            "Azure",
+            "Physical Hardware",
+            "Other"
+          ]
+        },
+        {
+          "id": "ha",
+          "label": "High Availability",
+          "type": "checkbox",
+          "options": [
+            "Active/Active",
+            "Active/Passive",
+            "DR region",
+            "Backup & Restore",
+            "None"
+          ]
+        },
+        {
+          "id": "rto",
+          "label": "RTO (hrs)",
+          "type": "number",
+          "min": 0,
+          "max": 168
+        },
+        {
+          "id": "rpo",
+          "label": "RPO (hrs)",
+          "type": "number",
+          "min": 0,
+          "max": 168
+        }
+      ]
+    },
+    {
+      "id": "operations",
+      "title": "Operations Management",
+      "domain": "O",
+      "fields": [
+        {
+          "id": "supportModel",
+          "label": "Support Model",
+          "type": "select",
+          "options": [
+            "24x7",
+            "Business hours",
+            "Best effort"
+          ]
+        },
+        {
+          "id": "runbooks",
+          "label": "Runbooks Available",
+          "type": "select",
+          "options": [
+            "Yes",
+            "In progress",
+            "No"
+          ]
+        },
+        {
+          "id": "onboarding",
+          "label": "Onboarding Tasks",
+          "type": "multitext",
+          "placeholder": "Accounts, RBAC, training"
+        },
+        {
+          "id": "offboarding",
+          "label": "Offboarding Tasks",
+          "type": "multitext",
+          "placeholder": "Access removal, data retention"
+        }
+      ]
+    },
+    {
+      "id": "governance",
+      "title": "Governance & Compliance",
+      "domain": "G",
+      "fields": [
+        {
+          "id": "policies",
+          "label": "Policy Exceptions Needed",
+          "type": "select",
+          "options": [
+            "No",
+            "Yes (describe)"
+          ]
+        },
+        {
+          "id": "exceptionText",
+          "label": "Exception Details",
+          "type": "textarea",
+          "rows": 3,
+          "branch": {
+            "showWhen": {
+              "policies": [
+                "Yes (describe)"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "monitoring",
+      "title": "Monitoring, Auditing & Metrics",
+      "domain": "M",
+      "fields": [
+        {
+          "id": "monitoringTools",
+          "label": "Monitoring Tools",
+          "type": "checkbox",
+          "options": [
+            "Azure Monitor",
+            "MDE",
+            "Sentinel",
+            "Splunk",
+            "Zabbix",
+            "Other"
+          ]
+        },
+        {
+          "id": "biMetrics",
+          "label": "Key Service Metrics (BI)",
+          "type": "multitext",
+          "placeholder": "e.g., MTTR, Uptime %, Release frequency"
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "title": "Final Review & Attestation",
+      "domain": "R",
+      "fields": [
+        {
+          "id": "reviewer",
+          "label": "Prepared By (Name)",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "affirm",
+          "label": "I affirm the information is accurate.",
+          "type": "checkbox",
+          "options": [
+            "Yes"
+          ],
+          "required": true
+        }
+      ]
+    }
+  ]
+}

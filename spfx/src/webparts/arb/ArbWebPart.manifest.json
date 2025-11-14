@@ -1,0 +1,14 @@
+
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "preconfiguredEntries": [{
+    "title": { "default": "TXDPS ARB Form" },
+    "description": { "default": "Hosts the TXDPS ARB intake form" },
+    "officeFabricIconFontName": "Page",
+    "properties": { "formUrl": "" }
+  }],
+  "id": "f81b8c30-0b22-4e97-90d3-2f8b758e0ab1",
+  "componentType": "WebPart",
+  "version": "1.0.0",
+  "alias": "ArbWebPart"
+}

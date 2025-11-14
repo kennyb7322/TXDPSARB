@@ -1,0 +1,15 @@
+{
+  "version": "0.1",
+  "connections": [
+    {
+      "details": {
+        "protocol": "sharepoint-lists",
+        "address": {
+          "siteUrl": "https://<tenant>.sharepoint.com/sites/TXDPS",
+          "list": "ARB Submissions"
+        }
+      },
+      "name": "ARB Submissions (SharePoint)"
+    }
+  ]
+}

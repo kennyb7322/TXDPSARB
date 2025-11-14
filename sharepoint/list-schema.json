@@ -1,0 +1,85 @@
+{
+  "Title": "ARB Submissions",
+  "Fields": [
+    {
+      "InternalName": "Title",
+      "DisplayName": "Project Name",
+      "Type": "Text"
+    },
+    {
+      "InternalName": "RequestType",
+      "DisplayName": "Request Type",
+      "Type": "Choice",
+      "Choices": [
+        "New Solution",
+        "Enhancement",
+        "Renewal",
+        "Sunset/Retire"
+      ]
+    },
+    {
+      "InternalName": "SolutionArea",
+      "DisplayName": "Solution Area",
+      "Type": "Choice",
+      "Choices": [
+        "Application",
+        "Data",
+        "Integration",
+        "Network",
+        "Device/Hardware",
+        "Infrastructure",
+        "Security",
+        "Operations"
+      ]
+    },
+    {
+      "InternalName": "Classification",
+      "DisplayName": "Data Classification",
+      "Type": "Choice",
+      "Choices": [
+        "Public",
+        "Internal",
+        "Confidential",
+        "Regulated (CJIS/PCI/HIPAA)"
+      ]
+    },
+    {
+      "InternalName": "ContainsPII",
+      "DisplayName": "Contains PII/PHI/CJI",
+      "Type": "Boolean"
+    },
+    {
+      "InternalName": "SubmittedBy",
+      "DisplayName": "Submitted By",
+      "Type": "User"
+    },
+    {
+      "InternalName": "SubmittedAt",
+      "DisplayName": "Submitted At",
+      "Type": "DateTime"
+    },
+    {
+      "InternalName": "AnswersJSON",
+      "DisplayName": "Answers (JSON)",
+      "Type": "Note"
+    },
+    {
+      "InternalName": "Tags",
+      "DisplayName": "Tags",
+      "Type": "Note"
+    },
+    {
+      "InternalName": "Status",
+      "DisplayName": "Status",
+      "Type": "Choice",
+      "Choices": [
+        "Draft",
+        "Submitted",
+        "In Review",
+        "Approved",
+        "Changes Requested",
+        "Rejected"
+      ]
+    }
+  ]
+}

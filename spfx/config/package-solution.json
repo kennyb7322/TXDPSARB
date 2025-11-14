@@ -1,0 +1,14 @@
+
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "txdps-arb-solution",
+    "id": "d33b9bc4-9708-46e4-8bd7-ccf6d63dd111",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": false,
+    "isDomainIsolated": false
+  },
+  "paths": {
+    "zippedPackage": "solution/txdps-arb.sppkg"
+  }
+}

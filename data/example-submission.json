@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "tool": "TXDPS ARB",
+    "version": "1.0.0",
+    "submittedAt": "2025-11-14T18:24:27.013068Z"
+  },
+  "answers": {
+    "projectName": "Example Project",
+    "requestType": "New Solution",
+    "solutionArea": "Application"
+  },
+  "attachments": [
+    {
+      "name": "highlevel-diagram.vsdx",
+      "domain": "D",
+      "tags": [
+        "diagram"
+      ]
+    }
+  ]
+}
